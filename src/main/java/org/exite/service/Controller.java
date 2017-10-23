@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
  * Created by levitsky on 10.10.17.
  */
 public class Controller {
+
     private static ISoapExAPI soap;
 
     public static void configure(Config conf) throws SoapExAPIException {
@@ -31,6 +32,9 @@ public class Controller {
     }
     public static boolean send(String fileName, byte[]content) throws SoapExAPIException {
         return soap.sendDoc(fileName, content);
+    }
+    public static boolean upload(String fileName, byte[]content, String folder) throws SoapExAPIException {
+        return soap.uploadDoc(fileName, content, folder);
     }
     public static byte[] get(String fileName) throws SoapExAPIException {
         return soap.getDoc(fileName);

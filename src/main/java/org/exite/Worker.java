@@ -2,7 +2,6 @@ package org.exite;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.exite.SoapExAPI.SoapExAPIException;
 import org.exite.config.Config;
 import org.exite.service.Controller;
 import org.exite.utils.XML;
@@ -23,9 +22,8 @@ public class Worker {
 
     public Worker() {
         configure();
-        new Sender();
-        new Receiver();
-
+        new Thread(new Sender()).start();
+        new Thread(new Receiver()).start();
     }
 
     public static void main(String[] args) {
@@ -42,7 +40,7 @@ public class Worker {
             log.error(e.getMessage());
         } catch (IOException e) {
             log.error(e.getMessage());
-        } catch (SoapExAPIException e) {
+        } catch (Exception e) {
             log.error(e.getMessage());
         }
     }

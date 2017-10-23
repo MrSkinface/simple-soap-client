@@ -15,12 +15,15 @@ public class Doc {
     public String type;
     @XmlElement
     public String path;
+    @XmlElement
+    public String folder;
 
     @Override
     public String toString() {
         return "Doc{" +
                 "type='" + type + '\'' +
                 ", path='" + path + '\'' +
+                ", folder='" + folder + '\'' +
                 '}';
     }
 }

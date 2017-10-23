@@ -1,11 +1,9 @@
 package org.exite;
 
 import org.apache.log4j.Logger;
-import org.exite.SoapExAPI.SoapExAPIException;
 import org.exite.config.*;
 import org.exite.service.Controller;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -18,7 +16,6 @@ public class Receiver implements Runnable {
 
     public Receiver(){
         registerShutdownHook();
-        new Thread(this).start();
     }
 
     @Override
@@ -41,7 +38,7 @@ public class Receiver implements Runnable {
                     }
                 }
             }
-        } catch (SoapExAPIException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             log.error(e.getMessage());
         }

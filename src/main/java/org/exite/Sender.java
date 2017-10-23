@@ -17,7 +17,6 @@ public class Sender implements Runnable {
 
     public Sender() {
         registerShutdownHook();
-        new Thread(this).start();
     }
 
     @Override
@@ -32,8 +31,13 @@ public class Sender implements Runnable {
                 for(String name : f.list()){
                     if(name.toLowerCase().startsWith(doc.type.toLowerCase())){
                         try{
-                            Controller.send(name,Files.readAllBytes(Paths.get(doc.path).resolve(name)));
-                            log.info("[" + name + "] send successfully");
+                            if(doc.folder==null){
+                                Controller.send(name,Files.readAllBytes(Paths.get(doc.path).resolve(name)));
+                                log.info("[" + name + "] send successfully");
+                            } else{
+                                Controller.upload(name, Files.readAllBytes(Paths.get(doc.path).resolve(name)), doc.folder);
+                                log.info("[" + name + "] uploaded successfully to ["+doc.folder+"]");
+                            }
                             Files.delete(Paths.get(doc.path).resolve(name));
                             log.info("["+name+"] removed from ["+doc.path+"]");
                         }catch (Exception ex){
