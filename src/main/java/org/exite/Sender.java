@@ -1,12 +1,18 @@
 package org.exite;
 
 import org.apache.log4j.Logger;
+import org.exite.SoapExAPI.SoapExAPIException;
 import org.exite.config.*;
 import org.exite.service.Controller;
 
-import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by levitsky on 10.10.17.
@@ -23,35 +29,92 @@ public class Sender implements Runnable {
     public void run() {
         Thread.currentThread().setName(this.getClass().getSimpleName());
         log.info(Thread.currentThread().getName() + " start");
+        /*
+        * handling custom outbound files due to separate file's settings
+        * */
         for(Doc doc : Worker.conf.outbound.document){
             try{
-                File f = new File(doc.path);
-                if(!Files.exists(Paths.get(doc.path)))
-                    Files.createDirectories(Paths.get(doc.path));
-                for(String name : f.list()){
-                    if(name.toLowerCase().startsWith(doc.type.toLowerCase())){
-                        try{
+                list(Paths.get(doc.path),doc.type).forEach(name -> {
+                    try{
+                        if(!Files.isDirectory(name)){
                             if(doc.folder==null){
-                                Controller.send(name,Files.readAllBytes(Paths.get(doc.path).resolve(name)));
-                                log.info("[" + name + "] send successfully");
+                                Controller.send(name.getFileName().toString(),Files.readAllBytes(name));
+                                log.info("[" + name.getFileName().toString() + "] send successfully");
                             } else{
-                                Controller.upload(name, Files.readAllBytes(Paths.get(doc.path).resolve(name)), doc.folder);
-                                log.info("[" + name + "] uploaded successfully to ["+doc.folder+"]");
+                                Controller.upload(name.getFileName().toString(), Files.readAllBytes(name), doc.folder);
+                                log.info("[" + name.getFileName().toString() + "] uploaded successfully to ["+doc.folder+"]");
                             }
-                            Files.delete(Paths.get(doc.path).resolve(name));
-                            log.info("["+name+"] removed from ["+doc.path+"]");
-                        }catch (Exception ex){
-                            ex.printStackTrace();
-                            log.error(ex.getMessage());
+                            archive(name, Paths.get(Worker.conf.outbound.arcPath));
+                            log.info("[" + name.getFileName().toString() + "] moved from [" + doc.path + "] to [" + Worker.conf.outbound.arcPath + "]");
                         }
+                    }catch (Exception ex){
+                        ex.printStackTrace();
+                        log.error(ex.getMessage());
                     }
-                }
+                });
             }catch (Exception ex){
                 ex.printStackTrace();
                 log.error(ex.getMessage());
             }
         }
+        /*
+        * handling default outbound
+        * */
+        if(Worker.conf.outbound.path != null)
+        Worker.conf.outbound.path.stream().forEach(path -> {
+            list(Paths.get(path)).forEach(e -> {
+                try {
+                    if(!Files.isDirectory(e)){
+                        Controller.send(e.getFileName().toString(), Files.readAllBytes(e));
+                        log.info("[" + e.getFileName().toString() + "] send successfully");
+                        archive(e, Paths.get(Worker.conf.outbound.arcPath));
+                        log.info("[" + e.getFileName().toString() + "] moved from [" + Worker.conf.outbound.path + "] to [" + Worker.conf.outbound.arcPath + "]");
+                    }
+                } catch (SoapExAPIException e1) {
+                    e1.printStackTrace();
+                    log.error(e1.getMessage());
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                    log.error(e1.getMessage());
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                    log.error(e1.getMessage());
+                }
+            });
+        });
+
     }
+
+    private void archive(Path from, Path to) throws Exception {
+        try{
+            if(!Files.exists(to))
+                Files.createDirectories(to);
+            Files.write(to.resolve(from.getFileName()), Files.readAllBytes(from));
+            Files.delete(from);
+        }catch(Exception e){
+            e.printStackTrace();
+            Exception ex = new Exception("error while moving to arc : " + e.getMessage());
+            log.error(ex.getMessage());
+            throw ex;
+        }
+    }
+
+    private List<Path> list(Path path) {
+        try{
+            if(!Files.exists(path))
+                Files.createDirectories(path);
+            return Files.list(path).collect(Collectors.toList());
+        }catch(Exception e){
+            e.printStackTrace();
+            log.error(e.getMessage());
+            return new LinkedList<>();
+        }
+    }
+
+    private List<Path> list(Path path, String filter){
+        return list(path).stream().filter(e -> e.getFileName().toString().toLowerCase().startsWith(filter.toLowerCase())).collect(Collectors.toList());
+    }
+
     private void registerShutdownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override

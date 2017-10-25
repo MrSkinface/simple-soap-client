@@ -20,28 +20,36 @@ public class Worker {
 
     public static Config conf;
 
-    public Worker() {
-        configure();
+    public Worker(String configPath) throws Exception {
+        configure(configPath);
         new Thread(new Sender()).start();
         new Thread(new Receiver()).start();
     }
 
-    public static void main(String[] args) {
-        new Worker();
+    public static void main(String[] args) throws Exception{
+        if(args.length < 1 || args[0] == null){
+            throw new Exception("path to [config.xml] must be defined in arguments");
+        }else{
+            new Worker(args[0]);
+        }
     }
 
-    private void configure(){
+    private void configure(String configPath) throws Exception {
         try {
             PropertyConfigurator.configure(this.getClass().getClassLoader().getResourceAsStream("log4j.properties"));
             /*PropertyConfigurator.configure(new FileInputStream(Paths.get(System.getProperty("user.dir")).resolve("log4j.properties").toString()));*/
-            conf=(Config) XML.fromXml(Files.readAllBytes(Paths.get(System.getProperty("user.dir")).resolve("config.xml")), Config.class);
+            /*conf=(Config) XML.fromXml(Files.readAllBytes(Paths.get(System.getProperty("user.dir")).resolve("config.xml")), Config.class);*/
+            conf=(Config) XML.fromXml(Files.readAllBytes(Paths.get(configPath)), Config.class);
             Controller.configure(conf);
         } catch (FileNotFoundException e) {
-            log.error(e.getMessage());
+            log.error("Bad config file: " + e.getMessage());
+            throw e;
         } catch (IOException e) {
-            log.error(e.getMessage());
+            log.error("Bad config file: " + e.getMessage());
+            throw e;
         } catch (Exception e) {
             log.error(e.getMessage());
+            throw e;
         }
     }
 }

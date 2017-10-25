@@ -12,6 +12,13 @@ import java.util.List;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Direction {
+
+    @XmlElement
+    public String arcPath;
+
+    @XmlElement
+    public List<String> path;
+
     @XmlElement
     public List<Doc>document;
 
