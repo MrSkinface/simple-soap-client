@@ -34,7 +34,7 @@ public class Sender implements Runnable {
         * */
         for(Doc doc : Worker.conf.outbound.document){
             try{
-                list(Paths.get(doc.path),doc.type).forEach(name -> {
+                list(doc).forEach(name -> {
                     try{
                         if(!Files.isDirectory(name)){
                             if(doc.folder==null){
@@ -113,6 +113,16 @@ public class Sender implements Runnable {
 
     private List<Path> list(Path path, String filter){
         return list(path).stream().filter(e -> e.getFileName().toString().toLowerCase().startsWith(filter.toLowerCase())).collect(Collectors.toList());
+    }
+
+    private List<Path> list (Doc doc){
+        if(doc.type != null){
+            log.info("Searching ["+doc.type+"] in ["+doc.path+"]");
+            return list(Paths.get(doc.path), doc.type);
+        }else{
+            log.info("Searching files in ["+doc.path+"]");
+            return list(Paths.get(doc.path));
+        }
     }
 
     private void registerShutdownHook() {
