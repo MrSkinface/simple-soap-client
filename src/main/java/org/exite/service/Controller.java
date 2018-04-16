@@ -1,8 +1,8 @@
 package org.exite.service;
 
-import org.exite.SoapExAPI.ISoapExAPI;
-import org.exite.SoapExAPI.SoapExAPI;
-import org.exite.SoapExAPI.SoapExAPIException;
+import org.exite.ISoapExAPI;
+import org.exite.SoapExAPI;
+import org.exite.SoapExAPIException;
 import org.exite.config.Config;
 
 import java.net.MalformedURLException;
