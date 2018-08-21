@@ -1,4 +1,4 @@
-package org.exite.utils;
+package org.edin.utils;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;

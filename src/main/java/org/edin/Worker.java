@@ -1,10 +1,10 @@
-package org.exite;
+package org.edin;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.exite.config.Config;
-import org.exite.service.Controller;
-import org.exite.utils.XML;
+import org.edin.config.Config;
+import org.edin.service.Controller;
+import org.edin.utils.XML;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -37,8 +37,6 @@ public class Worker {
     private void configure(String configPath) throws Exception {
         try {
             PropertyConfigurator.configure(this.getClass().getClassLoader().getResourceAsStream("log4j.properties"));
-            /*PropertyConfigurator.configure(new FileInputStream(Paths.get(System.getProperty("user.dir")).resolve("log4j.properties").toString()));*/
-            /*conf=(Config) XML.fromXml(Files.readAllBytes(Paths.get(System.getProperty("user.dir")).resolve("config.xml")), Config.class);*/
             conf=(Config) XML.fromXml(Files.readAllBytes(Paths.get(configPath)), Config.class);
             Controller.configure(conf);
         } catch (FileNotFoundException e) {

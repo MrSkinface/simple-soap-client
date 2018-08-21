@@ -1,4 +1,4 @@
-package org.exite.config;
+package org.edin.config;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;

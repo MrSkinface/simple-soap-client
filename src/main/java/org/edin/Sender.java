@@ -1,8 +1,9 @@
-package org.exite;
+package org.edin;
 
 import org.apache.log4j.Logger;
-import org.exite.config.*;
-import org.exite.service.Controller;
+import org.edin.config.*;
+import org.edin.exceptions.SoapException;
+import org.edin.service.Controller;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -68,7 +69,7 @@ public class Sender implements Runnable {
                         archive(e, Paths.get(Worker.conf.outbound.arcPath));
                         log.info("[" + e.getFileName().toString() + "] moved from [" + Worker.conf.outbound.path + "] to [" + Worker.conf.outbound.arcPath + "]");
                     }
-                } catch (SoapExAPIException e1) {
+                } catch (SoapException e1) {
                     e1.printStackTrace();
                     log.error(e1.getMessage());
                 } catch (IOException e1) {

@@ -1,29 +1,31 @@
-package org.exite.config;
+package org.edin.config;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 /**
  * Created by levitsky on 10.10.17.
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Doc {
+public class Direction {
+
     @XmlElement
-    public String type;
+    public String arcPath;
+
     @XmlElement
-    public String path;
+    public List<String> path;
+
     @XmlElement
-    public String folder;
+    public List<Doc>document;
 
     @Override
     public String toString() {
-        return "Doc{" +
-                "type='" + type + '\'' +
-                ", path='" + path + '\'' +
-                ", folder='" + folder + '\'' +
+        return "Direction{" +
+                "document=" + document +
                 '}';
     }
 }

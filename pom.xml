@@ -4,20 +4,20 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.exite</groupId>
-    <artifactId>SoapExClient-UA</artifactId>
+    <groupId>org.edin</groupId>
+    <artifactId>SoapEdinClient</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.4</version>
+        </dependency>
+        <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>1.2.17</version>
-        </dependency>
-        <dependency>
-            <groupId>org.exite</groupId>
-            <artifactId>SoapExAPI-UA</artifactId>
-            <version>1.0.0</version>
         </dependency>
     </dependencies>
 
@@ -41,7 +41,7 @@
                             <appendAssemblyId>false</appendAssemblyId>
                             <archive>
                                 <manifest>
-                                    <mainClass>org.exite.Worker</mainClass>
+                                    <mainClass>org.edin.Worker</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>
@@ -52,6 +52,44 @@
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.9</version>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${basedir}/target/generated/src/main/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jaxws-maven-plugin</artifactId>
+                <version>1.12</version>
+                <configuration>
+                    <wsdlUrls>
+                        <wsdlUrl>https://soap.edi-n.com/soap/service.wsdl</wsdlUrl>
+                    </wsdlUrls>
+                    <keep>true</keep>
+                    <sourceDestDir>${basedir}/target/generated/src/main/java</sourceDestDir>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>wsimport</goal>
                         </goals>
                     </execution>
                 </executions>
