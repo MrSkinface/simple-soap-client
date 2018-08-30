@@ -5,7 +5,9 @@ import org.edin.config.Config;
 import org.edin.exceptions.SoapException;
 import org.service.edi.soap.*;
 
+import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
+import java.net.URL;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,13 +23,22 @@ public class Controller {
 
     public static void configure(Config conf) throws SoapException {
         try{
-            Service srv = new ServiceWsService();
+            Service srv;
+            if(conf.wsdl != null){
+                try{
+                    srv = new ServiceWsService(new URL(conf.wsdl), new QName("http://soap.edi.service.org", "ServiceWsService"));
+                } catch(Exception e){
+                    throw new SoapException(String.format("Problem with wsdl resource [%s], error : %s", conf.wsdl, e.getMessage()));
+                }
+            } else{
+                srv= new ServiceWsService();
+            }
             service = srv.getPort(ServiceWs.class);
             user = new EdiLogin();
             user.setLogin(conf.login);
             user.setPass(DigestUtils.md5Hex(conf.password));
             factory = new ObjectFactory();
-        }catch(Exception e){
+        } catch(Exception e){
             throw new SoapException(e.getMessage());
         }
     }
